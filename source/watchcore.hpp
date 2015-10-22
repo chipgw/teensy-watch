@@ -9,36 +9,35 @@
 
 #define SET_PRESS_TIME 2
 
+class WatchMode;
+
 class WatchCore {
     Adafruit_SSD1306 display;
 
-    enum Mode {
-        Time,
-        TimeSet,
-        Tempurature,
-        Timer,
-        Stopwatch
-    };
-
-    Mode mode;
 
     time_t buttonOneTime;
     time_t buttonTwoTime;
 
     void doInput();
 
+    WatchMode* modes[4];
+
 public:
+    enum Mode {
+        Time,
+        Tempurature,
+        Timer,
+        Stopwatch
+    };
+
+    Mode currentMode;
+
     WatchCore();
+    ~WatchCore();
 
     void run();
 
     void drawTime();
     void drawTempurature();
     void drawTimer();
-
-    void switchMode(time_t buttonTime);
-
-
-    time_t timerStart;
-    time_t timerLength;
 };

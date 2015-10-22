@@ -3,7 +3,7 @@ project(teensy-watch)
 
 teensy_create_target(${PROJECT_NAME})
 
-teensy_link_libraries(${PROJECT_NAME} Time TimeAlarms Wire SPI Adafruit_GFX Adafruit_SSD1306)
+teensy_link_libraries(${PROJECT_NAME} Time Wire SPI Adafruit_GFX Adafruit_SSD1306)
 
 file(GLOB SOURCES "source/*.cpp")
 
