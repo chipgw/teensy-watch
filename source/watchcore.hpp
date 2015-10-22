@@ -22,6 +22,11 @@ class WatchCore {
 
     Mode mode;
 
+    time_t buttonOneTime;
+    time_t buttonTwoTime;
+
+    void doInput();
+
 public:
     WatchCore();
 
@@ -31,13 +36,8 @@ public:
     void drawTempurature();
     void drawTimer();
 
-    void printDigits(int digits, bool colon);
-
-    void doInput();
     void switchMode(time_t buttonTime);
 
-    time_t buttonOneTime;
-    time_t buttonTwoTime;
 
     time_t timerStart;
     time_t timerLength;

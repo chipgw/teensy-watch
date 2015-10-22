@@ -13,7 +13,7 @@ set(CPU_CORE_SPEED 96000000 CACHE STRING "Set to 24000000, 48000000, 72000000 or
 if(APPLE)
     set(ARDUINOPATH "/Applications/Arduino.app/Contents/Resources/Java/" CACHE STRING "Path to Arduino installation")
 elseif(UNIX)
-    set(ARDUINOPATH "/usr/share/arduino" CACHE STRING "Path to Arduino installation")
+    set(ARDUINOPATH "/usr/share/arduino/" CACHE STRING "Path to Arduino installation")
 endif()
 
 
@@ -118,7 +118,7 @@ function(teensy_link_libraries TARGET)
             set(LIBRARY_PATH "${USER_HOME}/Arduino/libraries/${ARG}")
         else()
             # TODO - Support other search paths.
-            message(FATAL_ERROR "Unable to find the library directory!")
+            message(FATAL_ERROR "Unable to find the ${ARG} library directory!")
         endif()
 
         # Add all source files to the directory. */

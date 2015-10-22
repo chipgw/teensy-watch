@@ -12,7 +12,7 @@ WatchCore::WatchCore() : display(2), mode(Time), buttonOneTime(0), buttonTwoTime
     pinMode(13, OUTPUT);
 
     digitalWriteFast(13, HIGH);
-    delay(500);
+    delay(100);
 
     Serial.begin(9600);
 
@@ -20,8 +20,8 @@ WatchCore::WatchCore() : display(2), mode(Time), buttonOneTime(0), buttonTwoTime
 
     Serial.println("init1");
     Serial.flush();
-    digitalWriteFast(13, LOW); Alarm.delay(500);
-    digitalWriteFast(13, HIGH); Alarm.delay(500);
+    digitalWriteFast(13, LOW); delay(100);
+    digitalWriteFast(13, HIGH); delay(100);
 
     int successes = 0;
     for (int address = 0x01; address < 0xff; ++address) {
