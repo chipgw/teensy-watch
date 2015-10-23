@@ -3,6 +3,7 @@
 #include "watchmode.hpp"
 
 class ClockMode : public WatchMode {
+    int timeZone;
 public:
     ClockMode(WatchCore& c);
 
