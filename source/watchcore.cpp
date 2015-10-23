@@ -91,10 +91,8 @@ void WatchCore::run() {
                 buzzer = true;
         }
 
-        if (buzzer && millis() % 1000 > 500)
-            tone(BUZZER_PIN, 4000);
-        else
-            noTone(BUZZER_PIN);
+        if (buzzer && delta > 0)
+            tone(BUZZER_PIN, 4000, 500);
 
         display.clearDisplay();
         display.setCursor(0,0);
@@ -104,7 +102,7 @@ void WatchCore::run() {
 
         display.display();
 
-        delay(50);
+        delay(10);
         digitalWriteFast(13, LOW);
     }
 }

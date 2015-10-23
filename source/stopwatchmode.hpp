@@ -1,8 +1,13 @@
 #pragma once
 
+#include <cstdint>
 #include "watchmode.hpp"
 
 class StopwatchMode : public WatchMode {
+    bool running;
+    uint32_t length;
+    uint32_t last;
+
 public:
     StopwatchMode(WatchCore& c);
 

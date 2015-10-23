@@ -6,6 +6,10 @@
 TimerMode::TimerMode(WatchCore& c) : WatchMode(c), setting(90), remaining(2), running(false) { }
 
 void TimerMode::draw(Adafruit_GFX &display) {
+    display.setTextSize(2);
+    display.print("Timer");
+    display.println();
+
     display.setTextSize(3);
     display.printf("%02i:%02i", hour(remaining), minute(remaining));
     display.setTextSize(2);
