@@ -128,7 +128,7 @@ function(teensy_link_libraries TARGET)
 
         # Find headers in library folder and add to inlude paths.
         file(GLOB_RECURSE LIBRARY_HEADERS "${LIBRARY_PATH}/*.h")
-        set(LIBRARY_INCLUDE_DIRS "")
+        set(LIBRARY_INCLUDE_DIRS "${LIBRARY_PATH}")
         foreach(HEADER ${LIBRARY_HEADERS})
             get_filename_component(DIR ${HEADER} PATH)
             list(APPEND LIBRARY_INCLUDE_DIRS "${DIR}/")

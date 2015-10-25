@@ -63,7 +63,6 @@ ClockMode::ClockMode(WatchCore& c) : WatchMode(c), timeZone(0) { }
 void ClockMode::draw(Adafruit_GFX& display) {
     time_t local = zones[timeZone].zone.toLocal(now());
 
-    /* TODO - Use time zones and show date. */
     display.setTextSize(3);
     display.printf("%02i:%02i", hour(local), minute(local));
     display.setTextSize(2);

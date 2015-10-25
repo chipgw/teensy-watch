@@ -14,6 +14,7 @@ class WatchMode;
 class WatchCore {
     Adafruit_SSD1306 display;
 
+    time_t last;
 
     time_t buttonOneTime;
     time_t buttonTwoTime;

@@ -74,8 +74,6 @@ WatchCore::~WatchCore() {
 void WatchCore::run() {
     Serial.println("run");
 
-    time_t last = now();
-
     while (true) {
         time_t delta = now() - last;
         last = now();
@@ -120,6 +118,7 @@ void WatchCore::doInput() {
             if (t > DEFAULT_TIME) {
                 Teensy3Clock.set(t);
                 setTime(t);
+                last = t;
             }
         }
     }
