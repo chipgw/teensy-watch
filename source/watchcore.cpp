@@ -12,7 +12,7 @@ time_t getTeensy3Time() {
   return Teensy3Clock.get();
 }
 
-WatchCore::WatchCore() : display(2), currentMode(Time), buttonOneTime(0), buttonTwoTime(0) {
+WatchCore::WatchCore() : display(2), buttonOneTime(0), buttonTwoTime(0), currentMode(Time) {
     setSyncProvider(getTeensy3Time);
     pinMode(13, OUTPUT);
 
@@ -75,6 +75,7 @@ void WatchCore::run() {
     Serial.println("run");
 
     while (true) {
+        /* This should be 0 most of the time and 1 every now and then when the clock advances a second. */
         time_t delta = now() - last;
         last = now();
 
@@ -85,22 +86,27 @@ void WatchCore::run() {
         for (WatchMode* mode : modes) {
             mode->tick(delta);
 
-            if (mode->isBuzzer())
-                buzzer = true;
+            buzzer |= mode->isBuzzer();
         }
 
+        /* Only start the tone on ticks where the delta advances. */
         if (buzzer && delta > 0)
             tone(BUZZER_PIN, 4000, 500);
 
+        /* Some default setting for the display. */
         display.clearDisplay();
         display.setCursor(0,0);
         display.setTextColor(WHITE);
 
+        /* The mode handles the drawing itself. */
         modes[currentMode]->draw(display);
 
         display.display();
 
         delay(10);
+
+        /* When buttons are pressed they set this to HIGH for feedback,
+         * we set it to LOW again after the delay so it only lights up briefly. */
         digitalWriteFast(13, LOW);
     }
 }

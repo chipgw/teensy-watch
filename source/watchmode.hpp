@@ -11,6 +11,7 @@ protected:
 
 public:
     WatchMode(WatchCore& c);
+    virtual ~WatchMode() = default;
 
     virtual void draw(Adafruit_GFX& display) = 0;
 

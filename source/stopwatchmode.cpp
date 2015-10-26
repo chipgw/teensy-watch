@@ -1,7 +1,7 @@
 #include "stopwatchmode.hpp"
 #include "watchcore.hpp"
 
-StopwatchMode::StopwatchMode(WatchCore& c) : WatchMode(c), length(0), running(false) { }
+StopwatchMode::StopwatchMode(WatchCore& c) : WatchMode(c), running(false), length(0) { }
 
 void StopwatchMode::draw(Adafruit_GFX &display) {
     display.setTextSize(2);
