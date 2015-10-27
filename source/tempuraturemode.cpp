@@ -36,11 +36,6 @@ void TempuratureMode::buttonTwoPress(time_t buttonTime) {
 
 }
 
-bool TempuratureMode::isBuzzer() {
-    /* Thermometer does not buzz. */
-    return false;
-}
-
 void TempuratureMode::tick(time_t delta) {
 
 }

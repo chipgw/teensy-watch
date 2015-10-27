@@ -81,16 +81,11 @@ void WatchCore::run() {
 
         doInput();
 
-        bool buzzer = false;
-
-        for (WatchMode* mode : modes) {
+        for (WatchMode* mode : modes)
             mode->tick(delta);
 
-            buzzer |= mode->isBuzzer();
-        }
-
         /* Only start the tone on ticks where the delta advances. */
-        if (buzzer && delta > 0)
+        if (buzzer > now() && delta > 0)
             tone(BUZZER_PIN, 4000, 500);
 
         /* Some default setting for the display. */
@@ -136,7 +131,12 @@ void WatchCore::doInput() {
     } else {
         if(buttonOneTime != 0) {
             digitalWriteFast(13, HIGH);
-            modes[currentMode]->buttonOnePress(now() - buttonOneTime);
+
+            /* If the buzzer is enabled all pressing a button does is stop it. */
+            if (buzzer > now())
+                buzzer = 0;
+            else
+                modes[currentMode]->buttonOnePress(now() - buttonOneTime);
         }
 
         buttonOneTime = 0;
@@ -147,9 +147,18 @@ void WatchCore::doInput() {
     } else {
         if(buttonTwoTime != 0) {
             digitalWriteFast(13, HIGH);
-            modes[currentMode]->buttonTwoPress(now() - buttonTwoTime);
+
+            /* If the buzzer is enabled all pressing a button does is stop it. */
+            if (buzzer > now())
+                buzzer = 0;
+            else
+                modes[currentMode]->buttonTwoPress(now() - buttonTwoTime);
         }
 
         buttonTwoTime = 0;
     }
+}
+
+void WatchCore::enableBuzzer(time_t seconds) {
+    buzzer = now() + seconds;
 }

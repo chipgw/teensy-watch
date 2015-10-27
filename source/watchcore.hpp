@@ -23,6 +23,9 @@ class WatchCore {
 
     WatchMode* modes[4];
 
+    /* End time for the buzzer. */
+    time_t buzzer;
+
 public:
     enum Mode {
         Time,
@@ -38,7 +41,5 @@ public:
 
     void run();
 
-    void drawTime();
-    void drawTempurature();
-    void drawTimer();
+    void enableBuzzer(time_t seconds);
 };

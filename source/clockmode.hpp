@@ -12,7 +12,5 @@ public:
     virtual void buttonOnePress(time_t buttonTime);
     virtual void buttonTwoPress(time_t buttonTime);
 
-    virtual bool isBuzzer();
-
     virtual void tick(time_t delta);
 };

@@ -28,15 +28,14 @@ void TimerMode::buttonTwoPress(time_t buttonTime) {
         running = !running;
 }
 
-bool TimerMode::isBuzzer() {
-    return running && remaining == 0;
-}
-
 void TimerMode::tick(time_t delta) {
     if (running) {
         if (remaining > delta)
             remaining -= delta;
-        else
+        else {
             remaining = 0;
+            core.enableBuzzer(60);
+            running = false;
+        }
     }
 }

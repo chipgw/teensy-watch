@@ -32,11 +32,6 @@ void StopwatchMode::buttonTwoPress(time_t buttonTime) {
         running = !running;
 }
 
-bool StopwatchMode::isBuzzer() {
-    /* Stopwatch does not buzz. */
-    return false;
-}
-
 void StopwatchMode::tick(time_t delta) {
     if (running)
         length += millis() - last;

@@ -10,15 +10,13 @@ protected:
     WatchCore& core;
 
 public:
-    WatchMode(WatchCore& c);
+    WatchMode(WatchCore& c) : core(c) { }
     virtual ~WatchMode() = default;
 
     virtual void draw(Adafruit_GFX& display) = 0;
 
     virtual void buttonOnePress(time_t buttonTime) = 0;
     virtual void buttonTwoPress(time_t buttonTime) = 0;
-
-    virtual bool isBuzzer() = 0;
 
     virtual void tick(time_t delta) = 0;
 };

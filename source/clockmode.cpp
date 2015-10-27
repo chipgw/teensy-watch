@@ -85,11 +85,6 @@ void ClockMode::buttonTwoPress(time_t buttonTime) {
         timeZone = 0;
 }
 
-bool ClockMode::isBuzzer() {
-    /* The clock never enables the buzzer. */
-    return false;
-}
-
 void ClockMode::tick(time_t delta) {
 
 }
