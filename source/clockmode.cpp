@@ -67,12 +67,12 @@ void ClockMode::draw(Adafruit_GFX& display) {
     display.printf("%02i:%02i", hour(local), minute(local));
     display.setTextSize(2);
     display.printf(":%02i", second(local));
-    display.println();
 
+    display.setCursor(0, 24);
     display.setTextSize(1);
     display.printf("%s, %04i-%02i-%02i", dayStr(dayOfWeek(local)), year(local), month(local), day(local));
 
-    display.println();
+    display.setCursor(0, 32);
     display.print(zones[timeZone].name);
 }
 
