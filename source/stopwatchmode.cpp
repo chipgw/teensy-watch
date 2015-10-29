@@ -16,9 +16,8 @@ void StopwatchMode::draw(Adafruit_GFX &display) {
     } else {
         display.printf("%02i:%02i", length / 60000, length / 1000 % 60);
         display.setTextSize(2);
-        display.printf(":%02i", length / 10 % 100);
+        display.printf(".%02i", length / 10 % 100);
     }
-    display.println();
 }
 
 void StopwatchMode::buttonOnePress(time_t buttonTime) {

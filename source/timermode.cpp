@@ -14,7 +14,6 @@ void TimerMode::draw(Adafruit_GFX &display) {
     display.printf("%02i:%02i", hour(remaining), minute(remaining));
     display.setTextSize(2);
     display.printf(":%02i", second(remaining));
-    display.println();
 }
 
 void TimerMode::buttonOnePress(time_t buttonTime) {
