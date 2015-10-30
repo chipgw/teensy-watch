@@ -4,6 +4,13 @@
 #include <Adafruit_GFX.h>
 #include <Timezone.h>
 
+#define ANALOG_CENTER_X 64
+#define ANALOG_CENTER_Y 32
+
+#define SECOND_HAND_LENGTH 31
+#define MINUTE_HAND_LENGTH 24
+#define HOUR_HAND_LENGTH 16
+
 struct Zone {
     const char* name;
     Timezone zone;
@@ -58,22 +65,34 @@ Zone zones[] = {
 
 constexpr int numZones = sizeof(zones) / sizeof(zones[0]);
 
-ClockMode::ClockMode(WatchCore& c) : WatchMode(c), timeZone(0) { }
+ClockMode::ClockMode(WatchCore& c) : WatchMode(c), timeZone(0), analogMode(false) { }
 
 void ClockMode::draw(Adafruit_GFX& display) {
     time_t local = zones[timeZone].zone.toLocal(now());
 
-    display.setTextSize(3);
-    display.printf("%02i:%02i", hour(local), minute(local));
-    display.setTextSize(2);
-    display.printf(":%02i", second(local));
+    if (analogMode) {
+        display.drawCircle(ANALOG_CENTER_X, ANALOG_CENTER_Y, SECOND_HAND_LENGTH, WHITE);
 
-    display.setCursor(0, 24);
-    display.setTextSize(1);
-    display.printf("%s, %04i-%02i-%02i", dayStr(dayOfWeek(local)), year(local), month(local), day(local));
+        double secondHand = (1.0 - (second(local) / 30.0)) * M_PI;
+        double minuteHand = (1.0 - (minute(local) / 30.0)) * M_PI;
+        double hourHand = (1.0 - (hour(local) / 6.0)) * M_PI;
 
-    display.setCursor(0, 32);
-    display.print(zones[timeZone].name);
+        display.drawLine(ANALOG_CENTER_X, ANALOG_CENTER_Y, ANALOG_CENTER_X + sin(secondHand) * SECOND_HAND_LENGTH, ANALOG_CENTER_Y + cos(secondHand) * SECOND_HAND_LENGTH, WHITE);
+        display.drawLine(ANALOG_CENTER_X, ANALOG_CENTER_Y, ANALOG_CENTER_X + sin(minuteHand) * MINUTE_HAND_LENGTH, ANALOG_CENTER_Y + cos(minuteHand) * MINUTE_HAND_LENGTH, WHITE);
+        display.drawLine(ANALOG_CENTER_X, ANALOG_CENTER_Y, ANALOG_CENTER_X + sin(hourHand) * HOUR_HAND_LENGTH, ANALOG_CENTER_Y + cos(hourHand) * HOUR_HAND_LENGTH, WHITE);
+    } else {
+        display.setTextSize(3);
+        display.printf("%02i:%02i", hour(local), minute(local));
+        display.setTextSize(2);
+        display.printf(":%02i", second(local));
+
+        display.setCursor(0, 24);
+        display.setTextSize(1);
+        display.printf("%s, %04i-%02i-%02i", dayStr(dayOfWeek(local)), year(local), month(local), day(local));
+
+        display.setCursor(0, 32);
+        display.print(zones[timeZone].name);
+    }
 }
 
 void ClockMode::buttonOnePress(time_t buttonTime) {
@@ -81,7 +100,9 @@ void ClockMode::buttonOnePress(time_t buttonTime) {
 }
 
 void ClockMode::buttonTwoPress(time_t buttonTime) {
-    if (++timeZone >= numZones)
+    if (buttonTime > SET_PRESS_TIME)
+        analogMode = !analogMode;
+    else if (++timeZone >= numZones)
         timeZone = 0;
 }
 

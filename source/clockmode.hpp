@@ -4,6 +4,9 @@
 
 class ClockMode : public WatchMode {
     int timeZone;
+
+    bool analogMode;
+
 public:
     ClockMode(WatchCore& c);
 
