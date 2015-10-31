@@ -3,6 +3,11 @@
 #include "watchmode.hpp"
 
 class TempuratureMode : public WatchMode {
+    int mV;
+    int temperatureC;
+    int temperatureF;
+    bool freeze;
+
 public:
     TempuratureMode(WatchCore& c);
 

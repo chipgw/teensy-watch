@@ -2,30 +2,35 @@
 #include "watchcore.hpp"
 #include <Adafruit_GFX.h>
 
-TempuratureMode::TempuratureMode(WatchCore& c) : WatchMode(c) { }
+TempuratureMode::TempuratureMode(WatchCore& c) : WatchMode(c), freeze(false) { }
 
 void TempuratureMode::draw(Adafruit_GFX &display) {
-    /* TODO - Something got messed up with the thermometer when switching from the 5v UNO to the 3.3v Teensy... */
-    display.setTextSize(2);
     display.setTextColor(WHITE);
 
-    int mV = analogRead(A2) * 3300 / 1024;
-
-    display.print(mV); display.println("mV");
-
-    int temperatureC = mV / 10 - 50;
+    display.setCursor(0, 4);
+    display.setTextSize(3);
     display.print(temperatureC);
     display.setTextSize(1);
     display.print("O");
     display.setTextSize(2);
-    display.println("C");
+    display.print("C");
 
-    int temperatureF = (temperatureC * 9 / 5) + 32;
+    display.setCursor(0, 36);
+    display.setTextSize(3);
     display.print(temperatureF);
     display.setTextSize(1);
     display.print("O");
     display.setTextSize(2);
-    display.println("F");
+    display.print("F");
+
+    display.setTextSize(1);
+    display.setCursor(90, 8);
+    display.printf("%imV", mV);
+
+    if (freeze) {
+        display.setCursor(90, 40);
+        display.print("LOCKED");
+    }
 }
 
 void TempuratureMode::buttonOnePress(time_t buttonTime) {
@@ -33,9 +38,18 @@ void TempuratureMode::buttonOnePress(time_t buttonTime) {
 }
 
 void TempuratureMode::buttonTwoPress(time_t buttonTime) {
-
+    freeze = !freeze;
 }
 
 void TempuratureMode::tick(time_t delta) {
+    /* Only update the values once per second to make it easier to read. */
+    if (delta && !freeze) {
+        mV = analogRead(A2) * 3300 / 1024;
 
+        /* Each MV is 0.1C, and a reading of 0 is 50C below zero. */
+        temperatureC = mV / 10 - 50;
+
+        /* Each MV is 0.18F (9 / 50), and a reading of 0 is 58F below zero. */
+        temperatureF = mV * 9 / 50 - 58;
+    }
 }
