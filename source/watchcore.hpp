@@ -5,7 +5,7 @@
 #define BUTTON_ONE 8
 #define BUTTON_TWO 6
 
-#define BUZZER_PIN 4
+#define BUZZER_PIN 10
 
 #define SET_PRESS_TIME 2
 

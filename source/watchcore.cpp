@@ -56,8 +56,8 @@ WatchCore::WatchCore() : display(2), buttonOneTime(0), buttonTwoTime(0), current
     Serial.flush();
     digitalWriteFast(13, LOW);
 
-    pinMode(BUTTON_ONE, INPUT);
-    pinMode(BUTTON_TWO, INPUT);
+    pinMode(BUTTON_ONE, INPUT_PULLUP);
+    pinMode(BUTTON_TWO, INPUT_PULLUP);
     pinMode(BUZZER_PIN, OUTPUT);
 
     if (timeStatus() != timeSet)
