@@ -50,20 +50,52 @@ WatchCore::WatchCore() : display(2), buttonOneTime(0), buttonTwoTime(0), current
 
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
+    /* In case anything is still being shown on the display from last program run. */
     display.clearDisplay();
+    display.display();
 
     Serial.println("init2");
     Serial.flush();
     digitalWriteFast(13, LOW);
 
-    pinMode(BUTTON_ONE, INPUT_PULLUP);
-    pinMode(BUTTON_TWO, INPUT_PULLUP);
+    pinMode(TRACKBALL_BTN, INPUT);
+    pinMode(TRACKBALL_LFT, INPUT);
+    pinMode(TRACKBALL_RGT, INPUT);
+    pinMode(TRACKBALL_UP,  INPUT);
+    pinMode(TRACKBALL_DWN, INPUT);
+
+    pinMode(TRACKBALL_WHT, OUTPUT);
+    pinMode(TRACKBALL_GRN, OUTPUT);
+    pinMode(TRACKBALL_RED, OUTPUT);
+    pinMode(TRACKBALL_BLU, OUTPUT);
+
     pinMode(BUZZER_PIN, OUTPUT);
 
     if (timeStatus() != timeSet)
         Serial.println("Unable to sync with the RTC");
     else
         Serial.println("RTC has set the system time");
+
+    digitalWrite(TRACKBALL_WHT, HIGH);
+    delay(200);
+    digitalWrite(TRACKBALL_WHT, LOW);
+
+    digitalWrite(TRACKBALL_GRN, HIGH);
+    delay(200);
+    digitalWrite(TRACKBALL_GRN, LOW);
+
+    digitalWrite(TRACKBALL_RED, HIGH);
+    delay(200);
+    digitalWrite(TRACKBALL_RED, LOW);
+
+    digitalWrite(TRACKBALL_BLU, HIGH);
+    delay(200);
+    digitalWrite(TRACKBALL_BLU, LOW);
+
+    lftLast = digitalRead(TRACKBALL_LFT);
+    rgtLast = digitalRead(TRACKBALL_RGT);
+    upLast  = digitalRead(TRACKBALL_UP);
+    dwnLast = digitalRead(TRACKBALL_DWN);
 }
 
 WatchCore::~WatchCore() {
@@ -98,8 +130,6 @@ void WatchCore::run() {
 
         display.display();
 
-        delay(10);
-
         /* When buttons are pressed they set this to HIGH for feedback,
          * we set it to LOW again after the delay so it only lights up briefly. */
         digitalWriteFast(13, LOW);
@@ -124,8 +154,35 @@ void WatchCore::doInput() {
         }
     }
 
+    uint32_t lft = 0;
+    uint32_t rgt = 0;
+    uint32_t up  = 0;
+    uint32_t dwn = 0;
+
+    uint8_t lftNew = 0;
+    uint8_t rgtNew = 0;
+    uint8_t upNew  = 0;
+    uint8_t dwnNew = 0;
+
+    for(uint32_t start = micros(); (start + 1000) > micros();) {
+        lftNew = digitalReadFast(TRACKBALL_LFT);
+        rgtNew = digitalReadFast(TRACKBALL_RGT);
+        upNew  = digitalReadFast(TRACKBALL_UP);
+        dwnNew = digitalReadFast(TRACKBALL_DWN);
+
+        lft += lftLast != lftNew;
+        rgt += rgtLast != rgtNew;
+        up  += upLast  != upNew;
+        dwn += dwnLast != dwnNew;
+
+        lftLast = lftNew;
+        rgtLast = rgtNew;
+        upLast  = upNew;
+        dwnLast = dwnNew;
+    }
+
     /* LOW is pressed. */
-    if (digitalRead(BUTTON_ONE) == LOW) {
+    if (digitalRead(TRACKBALL_BTN) == LOW) {
         if (buttonOneTime == 0)
             buttonOneTime = now();
     } else {
@@ -141,22 +198,9 @@ void WatchCore::doInput() {
 
         buttonOneTime = 0;
     }
-    if (digitalRead(BUTTON_TWO) == LOW) {
-        if (buttonTwoTime == 0)
-            buttonTwoTime = now();
-    } else {
-        if(buttonTwoTime != 0) {
-            digitalWriteFast(13, HIGH);
 
-            /* If the buzzer is enabled all pressing a button does is stop it. */
-            if (buzzer > now())
-                buzzer = 0;
-            else
-                modes[currentMode]->buttonTwoPress(now() - buttonTwoTime);
-        }
-
-        buttonTwoTime = 0;
-    }
+    if (lft > 0 || rgt > 0)
+        modes[currentMode]->buttonTwoPress(0);
 }
 
 void WatchCore::enableBuzzer(time_t seconds) {

@@ -2,8 +2,16 @@
 
 #include <Adafruit_SSD1306.h>
 
-#define BUTTON_ONE 8
-#define BUTTON_TWO 6
+#define TRACKBALL_BTN 0
+#define TRACKBALL_LFT 1
+#define TRACKBALL_RGT 2
+#define TRACKBALL_UP  3
+#define TRACKBALL_DWN 4
+
+#define TRACKBALL_WHT 5
+#define TRACKBALL_GRN 6
+#define TRACKBALL_RED 7
+#define TRACKBALL_BLU 8
 
 #define BUZZER_PIN 10
 
@@ -25,6 +33,11 @@ class WatchCore {
 
     /* End time for the buzzer. */
     time_t buzzer;
+
+    uint8_t lftLast;
+    uint8_t rgtLast;
+    uint8_t upLast;
+    uint8_t dwnLast;
 
 public:
     enum Mode {
