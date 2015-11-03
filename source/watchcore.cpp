@@ -12,7 +12,7 @@ time_t getTeensy3Time() {
   return Teensy3Clock.get();
 }
 
-WatchCore::WatchCore() : display(2), buttonOneTime(0), buttonTwoTime(0), currentMode(Time) {
+WatchCore::WatchCore() : display(2), buttonTime(0), currentMenu(nullptr), currentMenuItem(0), currentMode(Time) {
     setSyncProvider(getTeensy3Time);
     pinMode(13, OUTPUT);
 
@@ -56,7 +56,7 @@ WatchCore::WatchCore() : display(2), buttonOneTime(0), buttonTwoTime(0), current
 
     Serial.println("init2");
     Serial.flush();
-    digitalWriteFast(13, LOW);
+    digitalWriteFast(LED_BUILTIN, LOW);
 
     pinMode(TRACKBALL_BTN, INPUT);
     pinMode(TRACKBALL_LFT, INPUT);
@@ -128,11 +128,40 @@ void WatchCore::run() {
         /* The mode handles the drawing itself. */
         modes[currentMode]->draw(display);
 
+        if (currentMenu != nullptr) {
+            /* Find the maximum length of menu item names. */
+            size_t maxWidth = 0;
+
+                for (int i = 0; i < currentMenuLength; ++i) {
+                auto len = strlen(currentMenu[i].name);
+
+                if (len > maxWidth)
+                    maxWidth = len;
+            }
+
+            /* A character is 6 pixels wide. */
+            maxWidth *= 6;
+
+            display.fillRect(0, 0, maxWidth + 5, 64, BLACK);
+            display.drawLine(maxWidth + 6, 0, maxWidth + 6, 64, WHITE);
+            display.setTextSize(1);
+            display.setCursor(0, 0);
+
+            for (int i = 0; i < currentMenuLength; ++i) {
+                if (i == currentMenuItem)
+                    display.setTextColor(BLACK, WHITE);
+                else
+                    display.setTextColor(WHITE, BLACK);
+
+                display.println(currentMenu[i].name);
+            }
+        }
+
         display.display();
 
         /* When buttons are pressed they set this to HIGH for feedback,
          * we set it to LOW again after the delay so it only lights up briefly. */
-        digitalWriteFast(13, LOW);
+        digitalWriteFast(LED_BUILTIN, LOW);
     }
 }
 
@@ -183,26 +212,83 @@ void WatchCore::doInput() {
 
     /* LOW is pressed. */
     if (digitalRead(TRACKBALL_BTN) == LOW) {
-        if (buttonOneTime == 0)
-            buttonOneTime = now();
+        if (buttonTime == 0)
+            buttonTime = now();
     } else {
-        if(buttonOneTime != 0) {
-            digitalWriteFast(13, HIGH);
+        if(buttonTime != 0) {
+            digitalWriteFast(LED_BUILTIN, HIGH);
 
             /* If the buzzer is enabled all pressing a button does is stop it. */
-            if (buzzer > now())
+            if (buzzer > now()) {
                 buzzer = 0;
-            else
-                modes[currentMode]->buttonOnePress(now() - buttonOneTime);
+            } else if (currentMenu != nullptr) {
+                if (currentMenu[currentMenuItem].callback != nullptr && currentMenu[currentMenuItem].callback(modes[currentMode], *this))
+                    currentMenu = nullptr;
+                else if (currentMenu[currentMenuItem].subMenu != nullptr)
+                    openMenu(currentMenu[currentMenuItem].subMenu);
+            } else {
+                modes[currentMode]->buttonPress(now() - buttonTime);
+            }
         }
 
-        buttonOneTime = 0;
+        buttonTime = 0;
     }
 
-    if (lft > 0 || rgt > 0)
-        modes[currentMode]->buttonTwoPress(0);
+    if (currentMenu != nullptr) {
+        currentMenuItem += dwn - up;
+
+        if (currentMenuItem < 0)
+            currentMenuItem = currentMenuLength - 1;
+        else if (currentMenuItem >= currentMenuLength)
+            currentMenuItem = 0;
+    } else {
+        if (lft > 0)
+            modes[currentMode]->left(lft);
+        if (rgt > 0)
+            modes[currentMode]->right(rgt);
+        if (up > 0)
+            modes[currentMode]->up(up);
+        if (dwn > 0)
+            modes[currentMode]->down(dwn);
+    }
+}
+
+void WatchCore::openMenu(const WatchMenu* menu) {
+    menu->previousMenu = currentMenu;
+    currentMenu = menu;
+    currentMenuItem = 0;
+    currentMenuLength = 0;
+
+    for (const WatchMenu* c = currentMenu; c->name != nullptr; ++c)
+        currentMenuLength++;
 }
 
 void WatchCore::enableBuzzer(time_t seconds) {
     buzzer = now() + seconds;
 }
+
+namespace {
+
+WatchMenu menu[] = {
+    { "Clock", [](WatchMode* mode, WatchCore& core) {
+          core.currentMode = WatchCore::Time;
+          return true;
+     }, nullptr, nullptr },
+    { "Thermometer", [](WatchMode* mode, WatchCore& core) {
+          core.currentMode = WatchCore::Tempurature;
+          return true;
+      }, nullptr, nullptr },
+    { "Timer", [](WatchMode* mode, WatchCore& core) {
+          core.currentMode = WatchCore::Timer;
+          return true;
+      }, nullptr, nullptr },
+    { "Stopwatch", [](WatchMode* mode, WatchCore& core) {
+          core.currentMode = WatchCore::Stopwatch;
+          return true;
+      }, nullptr, nullptr },
+    { nullptr, nullptr, nullptr }
+};
+
+}
+
+const WatchMenu modeMenu = { "Mode", nullptr, menu, nullptr };

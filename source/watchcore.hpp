@@ -17,6 +17,7 @@
 
 #define SET_PRESS_TIME 2
 
+class WatchMenu;
 class WatchMode;
 
 class WatchCore {
@@ -24,8 +25,7 @@ class WatchCore {
 
     time_t last;
 
-    time_t buttonOneTime;
-    time_t buttonTwoTime;
+    time_t buttonTime;
 
     void doInput();
 
@@ -39,6 +39,10 @@ class WatchCore {
     uint8_t upLast;
     uint8_t dwnLast;
 
+    const WatchMenu* currentMenu;
+    int currentMenuItem;
+    int currentMenuLength;
+
 public:
     enum Mode {
         Time,
@@ -51,6 +55,8 @@ public:
 
     WatchCore();
     ~WatchCore();
+
+    void openMenu(const WatchMenu* menu);
 
     void run();
 

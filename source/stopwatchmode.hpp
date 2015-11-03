@@ -4,8 +4,6 @@
 #include "watchmode.hpp"
 
 class StopwatchMode : public WatchMode {
-    bool running;
-    uint32_t length;
     uint32_t last;
 
 public:
@@ -13,8 +11,15 @@ public:
 
     virtual void draw(Adafruit_GFX& display);
 
-    virtual void buttonOnePress(time_t buttonTime);
-    virtual void buttonTwoPress(time_t buttonTime);
+    virtual void buttonPress(time_t buttonTime);
+
+    virtual void left(uint8_t amount);
+    virtual void right(uint8_t amount);
+    virtual void up(uint8_t amount);
+    virtual void down(uint8_t amount);
 
     virtual void tick(time_t delta);
+
+    bool running;
+    uint32_t length;
 };

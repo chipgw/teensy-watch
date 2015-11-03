@@ -95,17 +95,37 @@ void ClockMode::draw(Adafruit_GFX& display) {
     }
 }
 
-void ClockMode::buttonOnePress(time_t buttonTime) {
-    core.currentMode = WatchCore::Tempurature;
+namespace {
+
+WatchMenu menu[] = {
+    { "Set Time", [](WatchMode* mode, WatchCore& core) {
+          /* TODO - Implement. */
+          return true;
+     }, nullptr },
+    modeMenu,
+    { nullptr, nullptr, nullptr }
+};
+
 }
 
-void ClockMode::buttonTwoPress(time_t buttonTime) {
-    if (buttonTime > SET_PRESS_TIME)
-        analogMode = !analogMode;
-    else if (++timeZone >= numZones)
+void ClockMode::buttonPress(time_t buttonTime) {
+    core.openMenu(menu);
+}
+
+void ClockMode::left(uint8_t amount) {
+    if ((timeZone -= amount) < 0)
+        timeZone = numZones - 1;
+}
+
+void ClockMode::right(uint8_t amount) {
+    if ((timeZone += amount) < numZones)
         timeZone = 0;
 }
 
-void ClockMode::tick(time_t delta) {
-
+void ClockMode::up(uint8_t amount) {
 }
+
+void ClockMode::down(uint8_t amount) {
+}
+
+void ClockMode::tick(time_t delta) { }

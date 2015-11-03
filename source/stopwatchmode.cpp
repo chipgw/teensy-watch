@@ -20,15 +20,47 @@ void StopwatchMode::draw(Adafruit_GFX &display) {
     }
 }
 
-void StopwatchMode::buttonOnePress(time_t buttonTime) {
-    core.currentMode = WatchCore::Time;
+
+namespace {
+
+WatchMenu menu[] = {
+    { "Start/Stop", [](WatchMode* mode, WatchCore& core) {
+          StopwatchMode* sw = static_cast<StopwatchMode*>(mode);
+
+          if (sw)
+              sw->running = !sw->running;
+
+          return true;
+      }, nullptr },
+    { "Reset", [](WatchMode* mode, WatchCore& core) {
+          StopwatchMode* sw = static_cast<StopwatchMode*>(mode);
+
+          if (sw) {
+              sw->length = 0;
+              sw->running = false;
+          }
+          return true;
+      }, nullptr },
+    modeMenu,
+    { nullptr, nullptr, nullptr }
+};
+
 }
 
-void StopwatchMode::buttonTwoPress(time_t buttonTime) {
-    if (!running && buttonTime > SET_PRESS_TIME)
-        length = 0;
-    else
-        running = !running;
+void StopwatchMode::buttonPress(time_t buttonTime) {
+    core.openMenu(menu);
+}
+
+void StopwatchMode::left(uint8_t amount) {
+}
+
+void StopwatchMode::right(uint8_t amount) {
+}
+
+void StopwatchMode::up(uint8_t amount) {
+}
+
+void StopwatchMode::down(uint8_t amount) {
 }
 
 void StopwatchMode::tick(time_t delta) {

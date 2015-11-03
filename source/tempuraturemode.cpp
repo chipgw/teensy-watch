@@ -33,12 +33,38 @@ void TempuratureMode::draw(Adafruit_GFX &display) {
     }
 }
 
-void TempuratureMode::buttonOnePress(time_t buttonTime) {
-    core.currentMode = WatchCore::Timer;
+
+namespace {
+
+WatchMenu menu[] = {
+    { "Lock", [](WatchMode* mode, WatchCore& core) {
+          TempuratureMode* temp = static_cast<TempuratureMode*>(mode);
+
+          if (temp)
+              temp->freeze = !temp->freeze;
+
+          return true;
+      }, nullptr },
+    modeMenu,
+    { nullptr, nullptr, nullptr }
+};
+
 }
 
-void TempuratureMode::buttonTwoPress(time_t buttonTime) {
-    freeze = !freeze;
+void TempuratureMode::buttonPress(time_t buttonTime) {
+    core.openMenu(menu);
+}
+
+void TempuratureMode::left(uint8_t amount) {
+}
+
+void TempuratureMode::right(uint8_t amount) {
+}
+
+void TempuratureMode::up(uint8_t amount) {
+}
+
+void TempuratureMode::down(uint8_t amount) {
 }
 
 void TempuratureMode::tick(time_t delta) {
