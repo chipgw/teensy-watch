@@ -17,6 +17,10 @@ struct Zone {
 };
 
 Zone zones[] = {
+    { "UTC", Timezone(
+      TimeChangeRule{"UTC", First, Sun, Oct, 2, 0},
+      TimeChangeRule{"UTC", First, Sun, Oct, 2, 0})
+    },
     //Australia Eastern Time Zone (Sydney, Melbourne)
     { "Australia Eastern", Timezone(
       TimeChangeRule{"AEDT", First, Sun, Oct, 2, 660},    //UTC + 11 hours
