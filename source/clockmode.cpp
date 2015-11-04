@@ -65,7 +65,7 @@ Zone zones[] = {
 
 constexpr int numZones = sizeof(zones) / sizeof(zones[0]);
 
-ClockMode::ClockMode(WatchCore& c) : WatchMode(c), timeZone(0), analogMode(false) { }
+ClockMode::ClockMode(WatchCore& c) : WatchMode(c), timeZone(0), setTimeZone(false), analogMode(false) { }
 
 void ClockMode::draw(Adafruit_GFX& display) {
     time_t local = zones[timeZone].zone.toLocal(now());
@@ -80,6 +80,12 @@ void ClockMode::draw(Adafruit_GFX& display) {
         display.drawLine(ANALOG_CENTER_X, ANALOG_CENTER_Y, ANALOG_CENTER_X + sin(secondHand) * SECOND_HAND_LENGTH, ANALOG_CENTER_Y + cos(secondHand) * SECOND_HAND_LENGTH, WHITE);
         display.drawLine(ANALOG_CENTER_X, ANALOG_CENTER_Y, ANALOG_CENTER_X + sin(minuteHand) * MINUTE_HAND_LENGTH, ANALOG_CENTER_Y + cos(minuteHand) * MINUTE_HAND_LENGTH, WHITE);
         display.drawLine(ANALOG_CENTER_X, ANALOG_CENTER_Y, ANALOG_CENTER_X + sin(hourHand) * HOUR_HAND_LENGTH, ANALOG_CENTER_Y + cos(hourHand) * HOUR_HAND_LENGTH, WHITE);
+
+        if (setTimeZone) {
+            display.setTextColor(BLACK, WHITE);
+
+            display.print(zones[timeZone].name);
+        }
     } else {
         display.setTextSize(3);
         display.printf("%02i:%02i", hour(local), minute(local));
@@ -91,6 +97,10 @@ void ClockMode::draw(Adafruit_GFX& display) {
         display.printf("%s, %04i-%02i-%02i", dayStr(dayOfWeek(local)), year(local), month(local), day(local));
 
         display.setCursor(0, 32);
+
+        if (setTimeZone)
+            display.setTextColor(BLACK, WHITE);
+
         display.print(zones[timeZone].name);
     }
 }
@@ -98,10 +108,26 @@ void ClockMode::draw(Adafruit_GFX& display) {
 namespace {
 
 WatchMenu menu[] = {
+    { "Toggle Analog", [](WatchMode* mode, WatchCore& core) {
+          ClockMode* clock = static_cast<ClockMode*>(mode);
+
+          if (clock)
+              clock->analogMode = !clock->analogMode;
+
+          return true;
+     }, nullptr },
+    { "Set Time Zone", [](WatchMode* mode, WatchCore& core) {
+          ClockMode* clock = static_cast<ClockMode*>(mode);
+
+          if (clock)
+          clock->setTimeZone = true;
+
+          return true;
+      }, nullptr },
     { "Set Time", [](WatchMode* mode, WatchCore& core) {
           /* TODO - Implement. */
           return true;
-     }, nullptr },
+      }, nullptr },
     modeMenu,
     { nullptr, nullptr, nullptr }
 };
@@ -109,23 +135,24 @@ WatchMenu menu[] = {
 }
 
 void ClockMode::buttonPress(time_t buttonTime) {
-    core.openMenu(menu);
+    if (setTimeZone)
+        setTimeZone = false;
+    else
+        core.openMenu(menu);
 }
 
 void ClockMode::left(uint8_t amount) {
-    if ((timeZone -= amount) < 0)
+    if (setTimeZone && (timeZone -= amount) < 0)
         timeZone = numZones - 1;
 }
 
 void ClockMode::right(uint8_t amount) {
-    if ((timeZone += amount) < numZones)
+    if (setTimeZone && (timeZone += amount) >= numZones)
         timeZone = 0;
 }
 
-void ClockMode::up(uint8_t amount) {
-}
+void ClockMode::up(uint8_t amount) { }
 
-void ClockMode::down(uint8_t amount) {
-}
+void ClockMode::down(uint8_t amount) { }
 
 void ClockMode::tick(time_t delta) { }

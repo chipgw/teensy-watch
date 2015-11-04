@@ -5,8 +5,6 @@
 class ClockMode : public WatchMode {
     int timeZone;
 
-    bool analogMode;
-
 public:
     ClockMode(WatchCore& c);
 
@@ -20,4 +18,8 @@ public:
     virtual void down(uint8_t amount);
 
     virtual void tick(time_t delta);
+
+    bool setTimeZone;
+
+    bool analogMode;
 };
