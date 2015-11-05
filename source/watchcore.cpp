@@ -76,22 +76,6 @@ WatchCore::WatchCore() : display(2), buttonTime(0), currentMenu(nullptr), curren
     else
         Serial.println("RTC has set the system time");
 
-    digitalWrite(TRACKBALL_WHT, HIGH);
-    delay(200);
-    digitalWrite(TRACKBALL_WHT, LOW);
-
-    digitalWrite(TRACKBALL_GRN, HIGH);
-    delay(200);
-    digitalWrite(TRACKBALL_GRN, LOW);
-
-    digitalWrite(TRACKBALL_RED, HIGH);
-    delay(200);
-    digitalWrite(TRACKBALL_RED, LOW);
-
-    digitalWrite(TRACKBALL_BLU, HIGH);
-    delay(200);
-    digitalWrite(TRACKBALL_BLU, LOW);
-
     lftLast = digitalRead(TRACKBALL_LFT);
     rgtLast = digitalRead(TRACKBALL_RGT);
     upLast  = digitalRead(TRACKBALL_UP);
@@ -193,7 +177,8 @@ void WatchCore::doInput() {
     uint8_t upNew  = 0;
     uint8_t dwnNew = 0;
 
-    for(uint32_t start = micros(); (start + 1000) > micros();) {
+    /* Poll the hall effect sensors for 8 milliseconds. */
+    for(uint32_t time = millis() + 4; time > millis();) {
         lftNew = digitalReadFast(TRACKBALL_LFT);
         rgtNew = digitalReadFast(TRACKBALL_RGT);
         upNew  = digitalReadFast(TRACKBALL_UP);
