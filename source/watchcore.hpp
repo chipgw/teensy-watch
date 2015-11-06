@@ -29,7 +29,7 @@ class WatchCore {
 
     void doInput();
 
-    WatchMode* modes[4];
+    WatchMode* modes[5];
 
     /* End time for the buzzer. */
     time_t buzzer;
@@ -48,7 +48,8 @@ public:
         Time,
         Tempurature,
         Timer,
-        Stopwatch
+        Stopwatch,
+        Test
     };
 
     Mode currentMode;

@@ -5,6 +5,7 @@
 #include "tempuraturemode.hpp"
 #include "timermode.hpp"
 #include "stopwatchmode.hpp"
+#include "testmode.hpp"
 #include <Wire.h>
 #include <Time.h>
 
@@ -23,6 +24,7 @@ WatchCore::WatchCore() : display(2), buttonTime(0), currentMenu(nullptr), curren
     modes[Tempurature]  = new TempuratureMode(*this);
     modes[Timer]        = new TimerMode(*this);
     modes[Stopwatch]    = new StopwatchMode(*this);
+    modes[Test]         = new TestMode(*this);
 
     Serial.begin(9600);
 
@@ -269,6 +271,10 @@ WatchMenu menu[] = {
       }, nullptr, nullptr },
     { "Stopwatch", [](WatchMode* mode, WatchCore& core) {
           core.currentMode = WatchCore::Stopwatch;
+          return true;
+      }, nullptr, nullptr },
+    { "Test", [](WatchMode* mode, WatchCore& core) {
+          core.currentMode = WatchCore::Test;
           return true;
       }, nullptr, nullptr },
     { nullptr, nullptr, nullptr }
