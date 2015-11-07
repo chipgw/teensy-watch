@@ -26,4 +26,7 @@ public:
 
     /* Whether or not the timer is running. */
     bool running;
+
+    bool setTimer;
+    time_t setAmount;
 };

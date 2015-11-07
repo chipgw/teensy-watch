@@ -3,17 +3,37 @@
 #include <Adafruit_GFX.h>
 #include <Time.h>
 
-TimerMode::TimerMode(WatchCore& c) : WatchMode(c), setting(90), remaining(2), running(false) { }
+TimerMode::TimerMode(WatchCore& c) : WatchMode(c), setting(90), remaining(2), running(false), setTimer(false), setAmount(1) { }
 
 void TimerMode::draw(Adafruit_GFX &display) {
     display.setTextSize(2);
     display.print("Timer");
     display.println();
 
-    display.setTextSize(3);
-    display.printf("%02i:%02i", hour(remaining), minute(remaining));
-    display.setTextSize(2);
-    display.printf(":%02i", second(remaining));
+    if (setTimer) {
+        bool blinkOff = (millis() % 1000) < 500;
+        display.setTextSize(3);
+        if (!blinkOff || setAmount != SECS_PER_HOUR)
+            display.printf("%02i", setting / SECS_PER_HOUR);
+        else
+            display.print("  ");
+
+        if (!blinkOff || setAmount != SECS_PER_MIN)
+            display.printf(":%02i", minute(setting));
+        else
+            display.print(":  ");
+
+        display.setTextSize(2);
+        if (!blinkOff || setAmount != 1)
+            display.printf(":%02i", second(setting));
+        else
+            display.print(":  ");
+    } else {
+        display.setTextSize(3);
+        display.printf("%02i:%02i", remaining / SECS_PER_HOUR, minute(remaining));
+        display.setTextSize(2);
+        display.printf(":%02i", second(remaining));
+    }
 }
 
 namespace {
@@ -37,7 +57,12 @@ WatchMenu menu[] = {
           return true;
       }, nullptr },
     { "Set Timer", [](WatchMode* mode, WatchCore& core) {
-          /* TODO - Implement. */
+          TimerMode* timer = static_cast<TimerMode*>(mode);
+
+          if (timer) {
+              timer->running = false;
+              timer->setTimer = true;
+          }
           return true;
      }, nullptr },
     modeMenu,
@@ -47,19 +72,51 @@ WatchMenu menu[] = {
 }
 
 void TimerMode::buttonPress(time_t buttonTime) {
-    core.openMenu(menu);
+    if (setTimer) {
+        setTimer = false;
+        remaining = setting;
+    } else {
+        core.openMenu(menu);
+    }
 }
 
 void TimerMode::left(uint8_t amount) {
+    if (setTimer) {
+        if (setAmount == SECS_PER_HOUR)
+            setAmount = 1;
+        else
+            setAmount *= 60;
+    }
 }
 
 void TimerMode::right(uint8_t amount) {
+    if (setTimer) {
+        if (setAmount == 1)
+            setAmount = SECS_PER_HOUR;
+        else
+            setAmount /= 60;
+    }
 }
 
 void TimerMode::up(uint8_t amount) {
+    if (setTimer) {
+        setting += amount * setAmount;
+
+        if (setting >= 100 * SECS_PER_HOUR)
+            setting -= 100 * SECS_PER_HOUR;
+    }
 }
 
 void TimerMode::down(uint8_t amount) {
+    if (setTimer) {
+        if (amount * setAmount > setting) {
+            if (setAmount == SECS_PER_HOUR)
+                setting += 99 * SECS_PER_HOUR;
+            else
+                setting += 60 * setAmount;
+        }
+        setting -= amount * setAmount;
+    }
 }
 
 void TimerMode::tick(time_t delta) {
