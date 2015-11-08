@@ -151,6 +151,12 @@ void WatchCore::run() {
     }
 }
 
+void WatchCore::setCurrentTime(time_t time) {
+    Teensy3Clock.set(time);
+    setTime(time);
+    last = time;
+}
+
 void WatchCore::doInput() {
     while (Serial.available()) {
         String data = Serial.readStringUntil(':');
@@ -161,11 +167,8 @@ void WatchCore::doInput() {
 
             time_t t = Serial.parseInt();
 
-            if (t > DEFAULT_TIME) {
-                Teensy3Clock.set(t);
-                setTime(t);
-                last = t;
-            }
+            if (t > DEFAULT_TIME)
+                setCurrentTime(t);
         }
     }
 

@@ -62,4 +62,6 @@ public:
     void run();
 
     void enableBuzzer(time_t seconds);
+
+    void setCurrentTime(time_t time);
 };

@@ -19,6 +19,10 @@ public:
 
     virtual void tick(time_t delta);
 
+    bool setTime;
+    time_t setTimeTime;
+    time_t setTimeAmount;
+
     bool setTimeZone;
 
     bool analogMode;

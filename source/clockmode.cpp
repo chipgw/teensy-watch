@@ -69,12 +69,54 @@ Zone zones[] = {
 
 constexpr int numZones = sizeof(zones) / sizeof(zones[0]);
 
-ClockMode::ClockMode(WatchCore& c) : WatchMode(c), timeZone(0), setTimeZone(false), analogMode(false) { }
+ClockMode::ClockMode(WatchCore& c) : WatchMode(c), timeZone(0), setTime(false), setTimeAmount(1), setTimeZone(false), analogMode(false) { }
 
 void ClockMode::draw(Adafruit_GFX& display) {
     time_t local = zones[timeZone].zone.toLocal(now());
 
-    if (analogMode) {
+    if (setTime) {
+        local = zones[timeZone].zone.toLocal(setTimeTime);
+
+        bool blinkOff = (millis() % 1000) < 500;
+        display.setTextSize(3);
+        if (!blinkOff || setTimeAmount != SECS_PER_HOUR)
+            display.printf("%02i", hour(local));
+        else
+            display.print("  ");
+
+        if (!blinkOff || setTimeAmount != SECS_PER_MIN)
+            display.printf(":%02i", minute(local));
+        else
+            display.print(":  ");
+
+        display.setTextSize(2);
+        if (!blinkOff || setTimeAmount != 1)
+            display.printf(":%02i", second(local));
+        else
+            display.print(":  ");
+
+        display.setCursor(0, 24);
+        display.setTextSize(1);
+        display.printf("%s, ", dayStr(dayOfWeek(local)));
+
+        if (!blinkOff || setTimeAmount != SECS_PER_YEAR)
+            display.printf("%04i", year(local));
+        else
+            display.print("    ");
+
+        if (!blinkOff || setTimeAmount != SECS_PER_DAY * 30)
+            display.printf("-%02i", month(local));
+        else
+            display.print("-  ");
+
+        if (!blinkOff || setTimeAmount != SECS_PER_DAY)
+            display.printf("-%02i", day(local));
+        else
+            display.print("-  ");
+
+        display.setCursor(0, 32);
+        display.print(zones[timeZone].name);
+    } else if (analogMode) {
         display.drawCircle(ANALOG_CENTER_X, ANALOG_CENTER_Y, SECOND_HAND_LENGTH, WHITE);
 
         double secondHand = (1.0 - (second(local) / 30.0)) * M_PI;
@@ -124,12 +166,18 @@ WatchMenu menu[] = {
           ClockMode* clock = static_cast<ClockMode*>(mode);
 
           if (clock)
-          clock->setTimeZone = true;
+              clock->setTimeZone = true;
 
           return true;
       }, nullptr },
     { "Set Time", [](WatchMode* mode, WatchCore& core) {
-          /* TODO - Implement. */
+          ClockMode* clock = static_cast<ClockMode*>(mode);
+
+          if (clock) {
+              clock->setTime = true;
+              clock->setTimeTime = now();
+          }
+
           return true;
       }, nullptr },
     modeMenu,
@@ -139,24 +187,60 @@ WatchMenu menu[] = {
 }
 
 void ClockMode::buttonPress(time_t buttonTime) {
-    if (setTimeZone)
+    if (setTime) {
+        setTime = false;
+        core.setCurrentTime(setTimeTime);
+    } else if (setTimeZone)
         setTimeZone = false;
     else
         core.openMenu(menu);
 }
 
 void ClockMode::left(uint8_t amount) {
+    if (setTime) {
+        if (setTimeAmount == SECS_PER_HOUR)
+            setTimeAmount = SECS_PER_DAY;
+        else if (setTimeAmount == SECS_PER_DAY)
+            setTimeAmount = SECS_PER_DAY * 30;
+        else if (setTimeAmount == SECS_PER_DAY * 30)
+            setTimeAmount = SECS_PER_YEAR;
+        else if (setTimeAmount == SECS_PER_YEAR)
+            setTimeAmount = 1;
+        else
+            setTimeAmount *= 60;
+    }
     if (setTimeZone && (timeZone -= amount) < 0)
         timeZone = numZones - 1;
 }
 
 void ClockMode::right(uint8_t amount) {
+    if (setTime) {
+        if (setTimeAmount == SECS_PER_YEAR)
+            setTimeAmount = SECS_PER_DAY * 30;
+        else if (setTimeAmount == SECS_PER_DAY * 30)
+            setTimeAmount = SECS_PER_DAY;
+        else if (setTimeAmount == SECS_PER_DAY)
+            setTimeAmount = SECS_PER_HOUR;
+        else if (setTimeAmount == 1)
+            setTimeAmount = SECS_PER_YEAR;
+        else
+            setTimeAmount /= 60;
+    }
     if (setTimeZone && (timeZone += amount) >= numZones)
         timeZone = 0;
 }
 
-void ClockMode::up(uint8_t amount) { }
+void ClockMode::up(uint8_t amount) {
+    if (setTime)
+        setTimeTime += amount * setTimeAmount;
+}
 
-void ClockMode::down(uint8_t amount) { }
+void ClockMode::down(uint8_t amount) {
+    if (setTime)
+        setTimeTime -= amount * setTimeAmount;
+}
 
-void ClockMode::tick(time_t delta) { }
+void ClockMode::tick(time_t delta) {
+    if (setTime)
+        setTimeTime += delta;
+}
