@@ -35,16 +35,16 @@ WatchCore::WatchCore() : display(2), buttonTime(0), currentMenu(nullptr), curren
     digitalWriteFast(13, LOW); delay(100);
     digitalWriteFast(13, HIGH); delay(100);
 
+    /* Check all I2C addresses to find devices. */
     int successes = 0;
     for (int address = 0x01; address < 0xff; ++address) {
         Wire.beginTransmission(address);
         int error = Wire.endTransmission();
-        if(error == 0) {
-            Serial.printf("Found device at 0x%02X\n", address);
-            successes++;
-        } else if(error == 4) {
+
+        if(error == 0)
+            Serial.printf("Found device #%i at 0x%02X\n", ++successes, address);
+        else if(error == 4)
             Serial.printf("Device error at 0x%02X\n", address);
-        }
     }
 
     if (successes == 0)
@@ -128,9 +128,15 @@ void WatchCore::run() {
             /* A character is 6 pixels wide. */
             maxWidth *= 6;
 
+            /* Black out the area behind the menu. */
             display.fillRect(0, 0, maxWidth + 5, 64, BLACK);
+
+            /* Draw a line on the right side of the menu. */
             display.drawLine(maxWidth + 6, 0, maxWidth + 6, 64, WHITE);
+
             display.setTextSize(1);
+
+            /* TODO - Make the menu scroll if there are more items in it than fit on the screen. */
             display.setCursor(0, 0);
 
             for (int i = 0; i < currentMenuLength; ++i) {
@@ -152,8 +158,13 @@ void WatchCore::run() {
 }
 
 void WatchCore::setCurrentTime(time_t time) {
+    /* Set the Teensy's RTC. */
     Teensy3Clock.set(time);
+
+    /* Update the Time library. */
     setTime(time);
+
+    /* Keep the delta calculation accurate. */
     last = time;
 }
 
@@ -182,7 +193,7 @@ void WatchCore::doInput() {
     uint8_t upNew  = 0;
     uint8_t dwnNew = 0;
 
-    /* Poll the hall effect sensors for 8 milliseconds. */
+    /* Poll the hall effect sensors for any changes over 8 milliseconds. */
     for(uint32_t time = millis() + 4; time > millis();) {
         lftNew = digitalReadFast(TRACKBALL_LFT);
         rgtNew = digitalReadFast(TRACKBALL_RGT);
@@ -249,6 +260,7 @@ void WatchCore::openMenu(const WatchMenu* menu) {
     currentMenuItem = 0;
     currentMenuLength = 0;
 
+    /* Count the number of items in the menu. */
     for (const WatchMenu* c = currentMenu; c->name != nullptr; ++c)
         currentMenuLength++;
 }
@@ -285,4 +297,5 @@ WatchMenu menu[] = {
 
 }
 
+/* This menu item is to be used in every mode's menu. */
 const WatchMenu modeMenu = { "Mode", nullptr, menu, nullptr };

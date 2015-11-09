@@ -11,7 +11,9 @@ void TimerMode::draw(Adafruit_GFX &display) {
     display.println();
 
     if (setTimer) {
+        /* When setting the timer value, blink the currently selected part. */
         bool blinkOff = (millis() % 1000) < 500;
+
         display.setTextSize(3);
         if (!blinkOff || setAmount != SECS_PER_HOUR)
             display.printf("%02i", setting / SECS_PER_HOUR);
@@ -102,6 +104,7 @@ void TimerMode::up(uint8_t amount) {
     if (setTimer) {
         setting += amount * setAmount;
 
+        /* If the timer is 100 hours or more loop back to 0 hours. */
         if (setting >= 100 * SECS_PER_HOUR)
             setting -= 100 * SECS_PER_HOUR;
     }
@@ -109,6 +112,7 @@ void TimerMode::up(uint8_t amount) {
 
 void TimerMode::down(uint8_t amount) {
     if (setTimer) {
+        /* If there is less time in the setting than we'd be subtracting, loop around to the maximum amount for the amount. */
         if (amount * setAmount > setting) {
             if (setAmount == SECS_PER_HOUR)
                 setting += 99 * SECS_PER_HOUR;
