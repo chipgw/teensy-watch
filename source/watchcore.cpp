@@ -103,7 +103,7 @@ void WatchCore::run() {
             mode->tick(delta);
 
         /* Only start the tone on ticks where the delta advances. */
-        if (buzzer > now() && delta > 0)
+        if (buzzer >= now() && delta > 0)
             tone(BUZZER_PIN, 4000, 500);
 
         /* Some default setting for the display. */

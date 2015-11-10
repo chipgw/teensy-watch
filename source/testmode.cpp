@@ -14,6 +14,14 @@ WatchMenu menu[] = {
 //    { "", [](WatchMode* mode, WatchCore& core) {
 //          return true;
 //     }, nullptr },
+    { "Test Buzzer 5 sec", [](WatchMode* mode, WatchCore& core) {
+          core.enableBuzzer(5);
+          return true;
+      }, nullptr },
+    { "Test Buzzer 20 sec", [](WatchMode* mode, WatchCore& core) {
+          core.enableBuzzer(20);
+          return true;
+      }, nullptr },
     modeMenu,
     { nullptr, nullptr, nullptr }
 };
