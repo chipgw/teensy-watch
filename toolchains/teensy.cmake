@@ -10,10 +10,20 @@ include(CMakeForceCompiler)
 set(TEENSY_VERSION 31 CACHE STRING "Set to the Teensy version corresponding to your board (30 or 31 allowed)" FORCE)
 set(CPU_CORE_SPEED 96000000 CACHE STRING "Set to 24000000, 48000000, 72000000 or 96000000 to set CPU core speed" FORCE)
 
+set(_EXE_EXT)
+
+# TODO - This might not always work...
+set(USER_HOME $ENV{HOME})
+
 if(APPLE)
     set(ARDUINOPATH "/Applications/Arduino.app/Contents/Resources/Java/" CACHE STRING "Path to Arduino installation")
 elseif(UNIX)
     set(ARDUINOPATH "/usr/share/arduino/" CACHE STRING "Path to Arduino installation")
+elseif(WIN32)
+    set(ARDUINOPATH "C:/Program Files (x86)/Arduino/" CACHE STRING "Path to Arduino installation")
+    set(_EXE_EXT ".exe")
+    set(USER_HOME $ENV{HOMEDRIVE}$ENV{HOMEPATH}/Documents)
+    string(REGEX REPLACE "\\\\" "/" USER_HOME ${USER_HOME})
 endif()
 
 
@@ -33,8 +43,8 @@ set(COREPATH "${ARDUINOPATH}hardware/teensy/avr/cores/teensy3/")
 set(CMAKE_SYSTEM_NAME Generic)
 
 # specify the cross compiler
-cmake_force_c_compiler(${COMPILERPATH}arm-none-eabi-gcc GNU)
-cmake_force_cxx_compiler(${COMPILERPATH}arm-none-eabi-g++ GNU)
+cmake_force_c_compiler(${COMPILERPATH}arm-none-eabi-gcc${_EXE_EXT} GNU)
+cmake_force_cxx_compiler(${COMPILERPATH}arm-none-eabi-g++${_EXE_EXT} GNU)
 
 # where is the target environment 
 set(CMAKE_FIND_ROOT_PATH ${COMPILERPATH})
@@ -83,7 +93,7 @@ function(teensy_add_executable TARGET)
     set_target_properties(${ELFTARGET} PROPERTIES COMPILE_FLAGS "-Wall -g -Os -mcpu=${CPU} -mthumb -nostdlib -MMD -felide-constructors -fno-exceptions -fno-rtti -std=gnu++0x")
     set_target_properties(${ELFTARGET} PROPERTIES COMPILE_DEFINITIONS "${TEENSY_DEFINITIONS}")
     set_target_properties(${ELFTARGET} PROPERTIES INCLUDE_DIRECTORIES "${COREPATH}")
-    set_target_properties(${ELFTARGET} PROPERTIES LINK_FLAGS "-Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=${CPU} -mthumb -T${LINKER_FILE}")
+    set_target_properties(${ELFTARGET} PROPERTIES LINK_FLAGS "-Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=${CPU} -mthumb -T\"${LINKER_FILE}\"")
 
     add_custom_command(OUTPUT ${TARGET}.hex
                        COMMAND ${COMPILERPATH}arm-none-eabi-size ${ELFTARGET}
@@ -101,9 +111,6 @@ function(teensy_create_target TARGET)
     unset(${TARGET}_LIBRARY_SOURCES CACHE)
     unset(${TARGET}_LIBRARY_INCLUDE_DIRS CACHE)
 endfunction()
-
-# TODO - This might not always work...
-set(USER_HOME $ENV{HOME})
 
 # Should be called *before* calling teensy_add_executable.
 function(teensy_link_libraries TARGET)
