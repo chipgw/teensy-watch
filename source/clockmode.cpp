@@ -11,6 +11,8 @@
 #define MINUTE_HAND_LENGTH 24
 #define HOUR_HAND_LENGTH 16
 
+#include "watch-bg.xbm"
+
 struct Zone {
     const char* name;
     Timezone zone;
@@ -117,7 +119,10 @@ void ClockMode::draw(Adafruit_GFX& display) {
         display.setCursor(0, 32);
         display.print(zones[timeZone].name);
     } else if (analogMode) {
-        display.drawCircle(ANALOG_CENTER_X, ANALOG_CENTER_Y, SECOND_HAND_LENGTH, WHITE);
+        /* For some reason the xbm draws the specified color in the pixels that are supposed to be BLACK.
+         * So WHITE is the "background color" that will fill where it's supposed to be because black gets drawn everywhere else. */
+        display.fillScreen(WHITE);
+        display.drawXBitmap(0, 0, watch_bg_bits, watch_bg_width, watch_bg_height, BLACK);
 
         double secondHand = (1.0 - (second(local) / 30.0)) * M_PI;
         double minuteHand = (1.0 - (minute(local) / 30.0)) * M_PI;
