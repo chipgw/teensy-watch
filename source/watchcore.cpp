@@ -9,15 +9,14 @@
 #include <Wire.h>
 #include <Time.h>
 
-time_t getTeensy3Time() {
-  return Teensy3Clock.get();
-}
-
 WatchCore::WatchCore() : display(2), buttonTime(0), currentMenu(nullptr), currentMenuItem(0), currentMode(Time) {
-    setSyncProvider(getTeensy3Time);
-    pinMode(13, OUTPUT);
+    /* Tell the Time library to get time from Teensy's RTC. */
+    setSyncProvider([]() { return time_t(Teensy3Clock.get()); });
 
-    digitalWriteFast(13, HIGH);
+    /* We blink the internal LED sometimes for feedback. */
+    pinMode(LED_BUILTIN, OUTPUT);
+
+    digitalWriteFast(LED_BUILTIN, HIGH);
     delay(100);
 
     modes[Time]         = new ClockMode(*this);
@@ -32,8 +31,8 @@ WatchCore::WatchCore() : display(2), buttonTime(0), currentMenu(nullptr), curren
 
     Serial.println("init1");
     Serial.flush();
-    digitalWriteFast(13, LOW); delay(100);
-    digitalWriteFast(13, HIGH); delay(100);
+    digitalWriteFast(LED_BUILTIN, LOW); delay(100);
+    digitalWriteFast(LED_BUILTIN, HIGH); delay(100);
 
     /* Check all I2C addresses to find devices. */
     int successes = 0;
@@ -60,24 +59,29 @@ WatchCore::WatchCore() : display(2), buttonTime(0), currentMenu(nullptr), curren
     Serial.flush();
     digitalWriteFast(LED_BUILTIN, LOW);
 
+    /* Set up the trackball inputs. */
     pinMode(TRACKBALL_BTN, INPUT);
     pinMode(TRACKBALL_LFT, INPUT);
     pinMode(TRACKBALL_RGT, INPUT);
     pinMode(TRACKBALL_UP,  INPUT);
     pinMode(TRACKBALL_DWN, INPUT);
 
+    /* And the trackball LEDs. */
     pinMode(TRACKBALL_WHT, OUTPUT);
     pinMode(TRACKBALL_GRN, OUTPUT);
     pinMode(TRACKBALL_RED, OUTPUT);
     pinMode(TRACKBALL_BLU, OUTPUT);
 
+    /* The buzzer needs to be set up too. */
     pinMode(BUZZER_PIN, OUTPUT);
 
+    /* Debug info on whether or not the RTC works. */
     if (timeStatus() != timeSet)
         Serial.println("Unable to sync with the RTC");
     else
         Serial.println("RTC has set the system time");
 
+    /* Get the initial values of the trackball hall effect sensors. */
     lftLast = digitalRead(TRACKBALL_LFT);
     rgtLast = digitalRead(TRACKBALL_RGT);
     upLast  = digitalRead(TRACKBALL_UP);
