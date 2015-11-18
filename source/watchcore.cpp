@@ -122,7 +122,7 @@ void WatchCore::run() {
             /* Find the maximum length of menu item names. */
             size_t maxWidth = 0;
 
-                for (int i = 0; i < currentMenuLength; ++i) {
+            for (int i = 0; i < currentMenuLength; ++i) {
                 auto len = strlen(currentMenu[i].name);
 
                 if (len > maxWidth)
@@ -139,9 +139,16 @@ void WatchCore::run() {
             display.drawLine(maxWidth + 6, 0, maxWidth + 6, 64, WHITE);
 
             display.setTextSize(1);
-
-            /* TODO - Make the menu scroll if there are more items in it than fit on the screen. */
             display.setCursor(0, 0);
+
+            int16_t overflow = (currentMenuLength * 8) - 60;
+
+            if (overflow > 0) {
+                int16_t scroll = overflow * currentMenuItem / currentMenuLength;
+                display.drawLine(maxWidth + 4, scroll, maxWidth + 4, 64 - overflow + scroll, WHITE);
+
+                display.setCursor(0, -scroll);
+            }
 
             for (int i = 0; i < currentMenuLength; ++i) {
                 if (i == currentMenuItem)

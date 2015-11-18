@@ -23,6 +23,15 @@ WatchMenu menu[] = {
           return true;
       }, nullptr },
     modeMenu,
+    /* Lots of mode menus so we can test scrolling. */
+    modeMenu,
+    modeMenu,
+    modeMenu,
+    modeMenu,
+    modeMenu,
+    modeMenu,
+    modeMenu,
+    modeMenu,
     { nullptr, nullptr, nullptr }
 };
 
