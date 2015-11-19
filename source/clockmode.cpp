@@ -4,13 +4,6 @@
 #include <Adafruit_GFX.h>
 #include <Timezone.h>
 
-#define ANALOG_CENTER_X 64
-#define ANALOG_CENTER_Y 32
-
-#define SECOND_HAND_LENGTH 31
-#define MINUTE_HAND_LENGTH 24
-#define HOUR_HAND_LENGTH 16
-
 #include "watch-bg.xbm"
 
 struct Zone {
@@ -128,9 +121,18 @@ void ClockMode::draw(Adafruit_GFX& display) {
         double minuteHand = (1.0 - (minute(local) / 30.0)) * M_PI;
         double hourHand = (1.0 - (hour(local) / 6.0)) * M_PI;
 
-        display.drawLine(ANALOG_CENTER_X, ANALOG_CENTER_Y, ANALOG_CENTER_X + sin(secondHand) * SECOND_HAND_LENGTH, ANALOG_CENTER_Y + cos(secondHand) * SECOND_HAND_LENGTH, WHITE);
-        display.drawLine(ANALOG_CENTER_X, ANALOG_CENTER_Y, ANALOG_CENTER_X + sin(minuteHand) * MINUTE_HAND_LENGTH, ANALOG_CENTER_Y + cos(minuteHand) * MINUTE_HAND_LENGTH, WHITE);
-        display.drawLine(ANALOG_CENTER_X, ANALOG_CENTER_Y, ANALOG_CENTER_X + sin(hourHand) * HOUR_HAND_LENGTH, ANALOG_CENTER_Y + cos(hourHand) * HOUR_HAND_LENGTH, WHITE);
+        /* Find the center of the screen. */
+        int16_t centerX = display.width() / 2;
+        int16_t centerY = display.height() / 2;
+
+        /* The second hand length is equal to whichever is center coordinate is smaller. The other hands are a fraction of the second hand length. */
+        int16_t secondHandLen = centerX < centerY ? centerX: centerY;
+        int16_t minuteHandLen = secondHandLen * 3 / 4;
+        int16_t hourHandLen = secondHandLen / 2;
+
+        display.drawLine(centerX, centerY, centerX + sin(secondHand) * secondHandLen, centerY + cos(secondHand) * secondHandLen, WHITE);
+        display.drawLine(centerX, centerY, centerX + sin(minuteHand) * minuteHandLen, centerY + cos(minuteHand) * minuteHandLen, WHITE);
+        display.drawLine(centerX, centerY, centerX + sin(hourHand)   * hourHandLen,   centerY + cos(hourHand)   * hourHandLen,   WHITE);
 
         if (setTimeZone) {
             display.setTextColor(BLACK, WHITE);

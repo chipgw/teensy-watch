@@ -133,19 +133,19 @@ void WatchCore::run() {
             maxWidth *= 6;
 
             /* Black out the area behind the menu. */
-            display.fillRect(0, 0, maxWidth + 5, 64, BLACK);
+            display.fillRect(0, 0, maxWidth + 5, display.height(), BLACK);
 
             /* Draw a line on the right side of the menu. */
-            display.drawLine(maxWidth + 6, 0, maxWidth + 6, 64, WHITE);
+            display.drawLine(maxWidth + 6, 0, maxWidth + 6, display.height(), WHITE);
 
             display.setTextSize(1);
             display.setCursor(0, 0);
 
-            int16_t overflow = (currentMenuLength * 8) - 60;
+            int16_t overflow = (currentMenuLength * 8) - display.height() + 4;
 
             if (overflow > 0) {
                 int16_t scroll = overflow * currentMenuItem / currentMenuLength;
-                display.drawLine(maxWidth + 4, scroll, maxWidth + 4, 64 - overflow + scroll, WHITE);
+                display.drawLine(maxWidth + 4, scroll, maxWidth + 4, display.height() - overflow + scroll, WHITE);
 
                 display.setCursor(0, -scroll);
             }
