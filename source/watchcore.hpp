@@ -24,6 +24,8 @@
 
 #define BUZZER_PIN 18
 
+#define LIGHT_PIN 17
+
 class WatchMenu;
 class WatchMode;
 
@@ -65,6 +67,7 @@ public:
     ~WatchCore();
 
     void openMenu(const WatchMenu* menu);
+    void popMenu();
 
     void run();
 

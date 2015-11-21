@@ -18,6 +18,7 @@ struct WatchMenu {
 };
 
 const extern WatchMenu modeMenu;
+const extern WatchMenu lightMenu;
 
 class WatchMode {
 protected:

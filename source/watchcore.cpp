@@ -48,6 +48,9 @@ WatchCore::WatchCore() : display(cs, dc, rst), buttonTime(0), currentMenu(nullpt
     /* The buzzer needs to be set up too. */
     pinMode(BUZZER_PIN, OUTPUT);
 
+    /* The buzzer needs to be set up too. */
+    pinMode(LIGHT_PIN, OUTPUT);
+
     /* Debug info on whether or not the RTC works. */
     if (timeStatus() != timeSet)
         Serial.println("Unable to sync with the RTC");
@@ -219,6 +222,11 @@ void WatchCore::doInput() {
             currentMenuItem = currentMenuLength - 1;
         else if (currentMenuItem >= currentMenuLength)
             currentMenuItem = 0;
+
+        if (lft > 0)
+            popMenu();
+        else if (rgt > 0 && currentMenu[currentMenuItem].subMenu != nullptr)
+            openMenu(currentMenu[currentMenuItem].subMenu);
     } else {
         if (lft > 0)
             modes[currentMode]->left(lft);
@@ -234,6 +242,19 @@ void WatchCore::doInput() {
 void WatchCore::openMenu(const WatchMenu* menu) {
     menu->previousMenu = currentMenu;
     currentMenu = menu;
+    currentMenuItem = 0;
+    currentMenuLength = 0;
+
+    /* Count the number of items in the menu. */
+    for (const WatchMenu* c = currentMenu; c->name != nullptr; ++c)
+        currentMenuLength++;
+}
+
+void WatchCore::popMenu() {
+    const WatchMenu* menu = currentMenu;
+    currentMenu = menu->previousMenu;
+    menu->previousMenu = nullptr;
+
     currentMenuItem = 0;
     currentMenuLength = 0;
 
@@ -276,3 +297,11 @@ WatchMenu menu[] = {
 
 /* This menu item is to be used in every mode's menu. */
 const WatchMenu modeMenu = { "Mode", nullptr, menu, nullptr };
+
+const WatchMenu lightMenu =  { "Light", [](WatchMode* mode, WatchCore& core) {
+                                   static bool on = false;
+
+                                   digitalWrite(LIGHT_PIN, on = !on);
+
+                                   return false;
+                               }, nullptr, nullptr };

@@ -26,6 +26,7 @@ WatchMenu menu[] = {
           core.enableBuzzer(20);
           return true;
       }, nullptr },
+    lightMenu,
     modeMenu,
     /* Lots of mode menus so we can test scrolling. */
     modeMenu,

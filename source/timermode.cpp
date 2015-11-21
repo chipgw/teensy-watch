@@ -66,6 +66,7 @@ WatchMenu menu[] = {
           }
           return true;
      }, nullptr },
+    lightMenu,
     modeMenu,
     { nullptr, nullptr, nullptr }
 };
