@@ -48,7 +48,7 @@ WatchCore::WatchCore() : display(cs, dc, rst), buttonTime(0), currentMenu(nullpt
     /* The buzzer needs to be set up too. */
     pinMode(BUZZER_PIN, OUTPUT);
 
-    /* The buzzer needs to be set up too. */
+    /* The flashlight LED needs to be set up too. */
     pinMode(LIGHT_PIN, OUTPUT);
 
     /* Debug info on whether or not the RTC works. */
@@ -269,39 +269,41 @@ void WatchCore::enableBuzzer(time_t seconds) {
 
 namespace {
 
-WatchMenu menu[] = {
+const WatchMenu menu[] = {
     { "Clock", [](WatchMode* mode, WatchCore& core) {
           core.currentMode = WatchCore::Time;
           return true;
-     }, nullptr, nullptr },
+     }},
     { "Thermometer", [](WatchMode* mode, WatchCore& core) {
           core.currentMode = WatchCore::Tempurature;
           return true;
-      }, nullptr, nullptr },
+      }},
     { "Timer", [](WatchMode* mode, WatchCore& core) {
           core.currentMode = WatchCore::Timer;
           return true;
-      }, nullptr, nullptr },
+      }},
     { "Stopwatch", [](WatchMode* mode, WatchCore& core) {
           core.currentMode = WatchCore::Stopwatch;
           return true;
-      }, nullptr, nullptr },
+      }},
     { "Test", [](WatchMode* mode, WatchCore& core) {
           core.currentMode = WatchCore::Test;
           return true;
-      }, nullptr, nullptr },
-    { nullptr, nullptr, nullptr }
+      }},
+    { nullptr }
 };
 
+/* Has to be static so that lightMode can be copied into menus. */
+static bool toggleLight(WatchMode* mode, WatchCore& core) {
+    static bool on = false;
+
+    digitalWrite(LIGHT_PIN, on = !on);
+
+    return false;
+}
 }
 
 /* This menu item is to be used in every mode's menu. */
-const WatchMenu modeMenu = { "Mode", nullptr, menu, nullptr };
+const WatchMenu modeMenu = { "Mode", nullptr, menu };
 
-const WatchMenu lightMenu =  { "Light", [](WatchMode* mode, WatchCore& core) {
-                                   static bool on = false;
-
-                                   digitalWrite(LIGHT_PIN, on = !on);
-
-                                   return false;
-                               }, nullptr, nullptr };
+const WatchMenu lightMenu = { "Light", toggleLight };

@@ -14,18 +14,18 @@ void TestMode::draw(Adafruit_GFX& display) {
 
 namespace {
 
-WatchMenu menu[] = {
+const WatchMenu menu[] = {
 //    { "", [](WatchMode* mode, WatchCore& core) {
 //          return true;
 //     }, nullptr },
     { "Test Buzzer 5 sec", [](WatchMode* mode, WatchCore& core) {
           core.enableBuzzer(5);
           return true;
-      }, nullptr },
+      }},
     { "Test Buzzer 20 sec", [](WatchMode* mode, WatchCore& core) {
           core.enableBuzzer(20);
           return true;
-      }, nullptr },
+      }},
     lightMenu,
     modeMenu,
     /* Lots of mode menus so we can test scrolling. */
@@ -43,7 +43,7 @@ WatchMenu menu[] = {
     modeMenu,
     modeMenu,
     modeMenu,
-    { nullptr, nullptr, nullptr }
+    { nullptr }
 };
 
 }

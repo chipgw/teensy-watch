@@ -20,10 +20,9 @@ void StopwatchMode::draw(Adafruit_GFX &display) {
     }
 }
 
-
 namespace {
 
-WatchMenu menu[] = {
+const WatchMenu menu[] = {
     { "Start/Stop", [](WatchMode* mode, WatchCore& core) {
           StopwatchMode* sw = static_cast<StopwatchMode*>(mode);
 
@@ -31,7 +30,7 @@ WatchMenu menu[] = {
               sw->running = !sw->running;
 
           return true;
-      }, nullptr },
+      }},
     { "Reset", [](WatchMode* mode, WatchCore& core) {
           StopwatchMode* sw = static_cast<StopwatchMode*>(mode);
 
@@ -40,10 +39,10 @@ WatchMenu menu[] = {
               sw->running = false;
           }
           return true;
-      }, nullptr },
+      }},
     lightMenu,
     modeMenu,
-    { nullptr, nullptr, nullptr }
+    { nullptr }
 };
 
 }

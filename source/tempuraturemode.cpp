@@ -35,7 +35,7 @@ void TempuratureMode::draw(Adafruit_GFX &display) {
 
 namespace {
 
-WatchMenu menu[] = {
+const WatchMenu menu[] = {
     { "Lock", [](WatchMode* mode, WatchCore& core) {
           TempuratureMode* temp = static_cast<TempuratureMode*>(mode);
 
@@ -43,10 +43,10 @@ WatchMenu menu[] = {
               temp->freeze = !temp->freeze;
 
           return true;
-      }, nullptr },
+      }},
     lightMenu,
     modeMenu,
-    { nullptr, nullptr, nullptr }
+    { nullptr }
 };
 
 }

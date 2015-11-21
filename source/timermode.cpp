@@ -39,7 +39,7 @@ void TimerMode::draw(Adafruit_GFX &display) {
 
 namespace {
 
-WatchMenu menu[] = {
+const WatchMenu menu[] = {
     { "Start/Stop", [](WatchMode* mode, WatchCore& core) {
           TimerMode* timer = static_cast<TimerMode*>(mode);
 
@@ -47,7 +47,7 @@ WatchMenu menu[] = {
               timer->running = !timer->running;
 
           return true;
-      }, nullptr },
+      }},
     { "Reset", [](WatchMode* mode, WatchCore& core) {
           TimerMode* timer = static_cast<TimerMode*>(mode);
 
@@ -56,7 +56,7 @@ WatchMenu menu[] = {
               timer->running = false;
           }
           return true;
-      }, nullptr },
+      }},
     { "Set Timer", [](WatchMode* mode, WatchCore& core) {
           TimerMode* timer = static_cast<TimerMode*>(mode);
 
@@ -65,10 +65,10 @@ WatchMenu menu[] = {
               timer->setTimer = true;
           }
           return true;
-     }, nullptr },
+     }},
     lightMenu,
     modeMenu,
-    { nullptr, nullptr, nullptr }
+    { nullptr }
 };
 
 }

@@ -159,7 +159,7 @@ void ClockMode::draw(Adafruit_GFX& display) {
 
 namespace {
 
-WatchMenu menu[] = {
+const WatchMenu menu[] = {
     { "Toggle Analog", [](WatchMode* mode, WatchCore& core) {
           ClockMode* clock = static_cast<ClockMode*>(mode);
 
@@ -167,7 +167,7 @@ WatchMenu menu[] = {
               clock->analogMode = !clock->analogMode;
 
           return true;
-     }, nullptr },
+     }},
     { "Set Time Zone", [](WatchMode* mode, WatchCore& core) {
           ClockMode* clock = static_cast<ClockMode*>(mode);
 
@@ -175,7 +175,7 @@ WatchMenu menu[] = {
               clock->setTimeZone = true;
 
           return true;
-      }, nullptr },
+      }},
     { "Set Time", [](WatchMode* mode, WatchCore& core) {
           ClockMode* clock = static_cast<ClockMode*>(mode);
 
@@ -185,10 +185,10 @@ WatchMenu menu[] = {
           }
 
           return true;
-      }, nullptr },
-    lightMenu,
+      }},
+    { lightMenu.name, lightMenu.callback },
     modeMenu,
-    { nullptr, nullptr, nullptr }
+    { nullptr }
 };
 
 }
