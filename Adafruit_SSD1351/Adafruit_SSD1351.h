@@ -78,6 +78,7 @@
 #define SSD1351_CMD_STOPSCROLL          0x9E
 #define SSD1351_CMD_STARTSCROLL         0x9F
 
+#include <Adafruit_GFX.h>
 
 class Adafruit_SSD1351  : public virtual Adafruit_GFX {
  public:
