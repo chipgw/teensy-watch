@@ -9,15 +9,13 @@
 #include <Wire.h>
 #include <Time.h>
 
-WatchCore::WatchCore() : display(2), buttonTime(0), currentMenu(nullptr), currentMenuItem(0), currentMode(Time) {
+#define dc   16
+#define cs   10
+#define rst  9
+
+WatchCore::WatchCore() : display(cs, dc, rst), buttonTime(0), currentMenu(nullptr), currentMenuItem(0), currentMode(Time) {
     /* Tell the Time library to get time from Teensy's RTC. */
     setSyncProvider([]() { return time_t(Teensy3Clock.get()); });
-
-    /* We blink the internal LED sometimes for feedback. */
-    pinMode(LED_BUILTIN, OUTPUT);
-
-    digitalWriteFast(LED_BUILTIN, HIGH);
-    delay(100);
 
     modes[Time]         = new ClockMode(*this);
     modes[Tempurature]  = new TempuratureMode(*this);
@@ -29,35 +27,10 @@ WatchCore::WatchCore() : display(2), buttonTime(0), currentMenu(nullptr), curren
 
     Wire.begin();
 
-    Serial.println("init1");
+    Serial.println("init");
     Serial.flush();
-    digitalWriteFast(LED_BUILTIN, LOW); delay(100);
-    digitalWriteFast(LED_BUILTIN, HIGH); delay(100);
 
-    /* Check all I2C addresses to find devices. */
-    int successes = 0;
-    for (int address = 0x01; address < 0xff; ++address) {
-        Wire.beginTransmission(address);
-        int error = Wire.endTransmission();
-
-        if(error == 0)
-            Serial.printf("Found device #%i at 0x%02X\n", ++successes, address);
-        else if(error == 4)
-            Serial.printf("Device error at 0x%02X\n", address);
-    }
-
-    if (successes == 0)
-        Serial.println("no devices found!");
-
-    display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-
-    /* In case anything is still being shown on the display from last program run. */
-    display.clearDisplay();
-    display.display();
-
-    Serial.println("init2");
-    Serial.flush();
-    digitalWriteFast(LED_BUILTIN, LOW);
+    display.begin();
 
     /* Set up the trackball inputs. */
     pinMode(TRACKBALL_BTN, INPUT);
@@ -110,10 +83,10 @@ void WatchCore::run() {
         if (buzzer >= now() && delta > 0)
             tone(BUZZER_PIN, 4000, 500);
 
-        /* Some default setting for the display. */
-        display.clearDisplay();
+        /* Some default settings for the display. */
+        display.clearScreen();
         display.setCursor(0,0);
-        display.setTextColor(WHITE);
+        display.setTextColor(YELLOW);
 
         /* The mode handles the drawing itself. */
         modes[currentMode]->draw(display);
@@ -159,12 +132,7 @@ void WatchCore::run() {
                 display.println(currentMenu[i].name);
             }
         }
-
-        display.display();
-
-        /* When buttons are pressed they set this to HIGH for feedback,
-         * we set it to LOW again after the delay so it only lights up briefly. */
-        digitalWriteFast(LED_BUILTIN, LOW);
+        display.update();
     }
 }
 
@@ -228,8 +196,6 @@ void WatchCore::doInput() {
             buttonTime = now();
     } else {
         if(buttonTime != 0) {
-            digitalWriteFast(LED_BUILTIN, HIGH);
-
             /* If the buzzer is enabled all pressing a button does is stop it. */
             if (buzzer > now()) {
                 buzzer = 0;

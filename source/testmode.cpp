@@ -1,6 +1,5 @@
 #include "testmode.hpp"
 #include "watchcore.hpp"
-#include <Adafruit_GFX.h>
 
 TestMode::TestMode(WatchCore& c) : WatchMode(c), x(64), y(32) { }
 
@@ -24,6 +23,12 @@ WatchMenu menu[] = {
       }, nullptr },
     modeMenu,
     /* Lots of mode menus so we can test scrolling. */
+    modeMenu,
+    modeMenu,
+    modeMenu,
+    modeMenu,
+    modeMenu,
+    modeMenu,
     modeMenu,
     modeMenu,
     modeMenu,

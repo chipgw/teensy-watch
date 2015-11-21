@@ -1,6 +1,5 @@
 #include "tempuraturemode.hpp"
 #include "watchcore.hpp"
-#include <Adafruit_GFX.h>
 
 TempuratureMode::TempuratureMode(WatchCore& c) : WatchMode(c), freeze(false) { }
 
@@ -70,7 +69,7 @@ void TempuratureMode::down(uint8_t amount) {
 void TempuratureMode::tick(time_t delta) {
     /* Only update the values once per second to make it easier to read. */
     if (delta && !freeze) {
-        mV = analogRead(A2) * 3300 / 1024;
+        mV = analogRead(A8) * 3300 / 1024;
 
         /* Each MV is 0.1C, and a reading of 0 is 50C below zero. */
         temperatureC = mV / 10 - 50;

@@ -1,7 +1,6 @@
 #include "clockmode.hpp"
 #include "watchcore.hpp"
 #include <Time.h>
-#include <Adafruit_GFX.h>
 #include <Timezone.h>
 
 #include "watch-bg.xbm"

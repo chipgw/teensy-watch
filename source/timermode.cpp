@@ -1,6 +1,5 @@
 #include "timermode.hpp"
 #include "watchcore.hpp"
-#include <Adafruit_GFX.h>
 #include <Time.h>
 
 TimerMode::TimerMode(WatchCore& c) : WatchMode(c), setting(90), remaining(2), running(false), setTimer(false), setAmount(1) { }
