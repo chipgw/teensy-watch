@@ -1,10 +1,15 @@
 #include "testmode.hpp"
 #include "watchcore.hpp"
 
-TestMode::TestMode(WatchCore& c) : WatchMode(c), x(64), y(32) { }
+TestMode::TestMode(WatchCore& c) : WatchMode(c), x(64), y(48) { }
 
 void TestMode::draw(Adafruit_GFX& display) {
-    display.drawPixel(x, y, WHITE);
+    static uint32_t d;
+    display.drawPixel(x, y, GREEN);
+    display.setCursor(0, 88);
+    display.setTextSize(1);
+    display.print(millis() - d);
+    d = millis();
 }
 
 namespace {
@@ -65,6 +70,6 @@ void TestMode::down(uint8_t amount) {
 void TestMode::tick(time_t delta) {
     digitalWriteFast(TRACKBALL_WHT, x > 64);
     digitalWriteFast(TRACKBALL_RED, x < 64);
-    digitalWriteFast(TRACKBALL_BLU, y > 32);
-    digitalWriteFast(TRACKBALL_GRN, y < 32);
+    digitalWriteFast(TRACKBALL_BLU, y > 48);
+    digitalWriteFast(TRACKBALL_GRN, y < 48);
 }
