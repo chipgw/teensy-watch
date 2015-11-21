@@ -134,7 +134,7 @@ void ClockMode::draw(Adafruit_GFX& display) {
         display.drawLine(centerX, centerY, centerX + sin(hourHand)   * hourHandLen,   centerY + cos(hourHand)   * hourHandLen,   WHITE);
 
         if (setTimeZone) {
-            display.setTextColor(BLACK, WHITE);
+            display.setTextColor(BLACK, RED);
 
             display.print(zones[timeZone].name);
         }
@@ -151,7 +151,7 @@ void ClockMode::draw(Adafruit_GFX& display) {
         display.setCursor(0, 32);
 
         if (setTimeZone)
-            display.setTextColor(BLACK, WHITE);
+            display.setTextColor(BLACK, RED);
 
         display.print(zones[timeZone].name);
     }
